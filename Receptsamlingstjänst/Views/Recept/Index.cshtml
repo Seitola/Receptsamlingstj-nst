@@ -1,0 +1,41 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+<div class="Food">
+
+    <h1 class="display-4">Recept</h1>
+
+    <p class="display-6">
+        Här kan man skapa och kolla på recept. Genom att antingen
+        trycka på "Skapa recept" - knappen för att skapa ett recept, när man 
+        har skapat ett recept kan man trycka på "Visa recept" - knappen bredvid receptets namn
+        för att se receptet man skapat.
+    </p>
+
+</div>
+
+<div class="Food">
+    @*Skickar en till skapa recept*@
+    <h2 class="display-5">Skapa recept</h2>
+
+    <a href="/Recept/CreateRecept" class="button-style">Skapa recept</a>
+
+</div>
+
+<div class="Food">
+
+    @*Skickar en till att visa receptet man tryckt på*@
+    <h2 class="display-5">Visa recept</h2>
+
+    @foreach (Recept recept in Model)
+    {
+
+        <p class="display-6">
+            @recept.Title <a href="/Recept/ShowRecept/@recept.Id">Visa Recept</a>
+        </p>
+
+    }
+
+</div>

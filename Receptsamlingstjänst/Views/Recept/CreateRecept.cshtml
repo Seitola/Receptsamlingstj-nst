@@ -1,0 +1,134 @@
+﻿@model Receptsamlingstjänst.Models.ReceptEditViewModel
+@{
+    ViewData["Title"] = "Skapa Nytt Recept";
+}
+<div class="Food">
+    <h1 class="display-4">Nytt Recept</h1>
+    <p class="display-6">
+        Här skapar man ett recept genom att skriva en titel och sedan väljer vilka ingredienser 
+        som ska vara med. För att lägga till en ingrediens, trycker du på rutan där det står en ingrediens, 
+        väljer ingrediensen du vill ha och sedan trycker på den fråaktiga "Lägg till ingrediens" - knappen.
+        Råkar fel ingrediens komma med på listan, kan du ta bort den felaktiga ingrediensen genom att 
+        trycka på "X" - knappen efter den felaktiga ingrediensen.<br />
+        <br />När du har skrivit en titel och lagt till ingredienserna, trycker du på den blåa
+        "Spara recept" - knappen.
+    </p>
+
+    
+
+</div>
+
+<div class="Food">
+    <h1 class="display-4">Börja skapa</h1>
+    <form action="/Recept/CreateRecept" method="post">
+        <p class="display-6">
+            Börja med att fylla i vad du vill kalla receptet i "Titel" rutan.
+        </p>
+        @*Fyller i receptets namn*@
+        <input type="hidden" name="Id" value="@Model.Id" />
+        <input type="text" name="Title" placeholder="Titel" value="@Model.Title" />
+
+        @*Väljer ingredienser till receptet*@
+        <div class="mb-3">
+            <br />
+            <label for="ingredientSelector" class="form-label display-6">Här nedan lägger du till ingredienserna:</label>
+            <select id="ingredientSelector" class="form-select">
+                @foreach (var ingrediense in Model.AllAvailableIngredients)
+                {
+                    <option value="@ingrediense.Id">@ingrediense.Name</option>
+                }
+            </select>
+            <br />
+            <button type="button" id="addIngredientButton" class="button-back">Lägg till ingrediens</button>
+        </div>
+
+        @*Visar vilka ingredienser man valt*@
+        <div id="selectedIngredientsForSubmission">
+        </div>
+
+        <h4 class="mt-4">Valda Ingredienser:</h4>
+        <ul id="selectedIngredientsList" class="list-unstyled">
+        </ul>
+
+        <button type="submit" class="button button-primary">Spara recept</button>
+    </form>
+</div>
+
+<div class="Food">
+
+    <p class="display-6">Om du inte vill skapa ett nytt recept, kan du trycka på "Tillbaka" - knappen nedan:</p>
+    <form action="/Recept/Index" method="post">
+
+        <button class="button button-back">Tillbaka</button>
+
+    </form>
+
+</div>
+
+@*JavaScripten nedan används för ingredienserna ska läggas till och skickas med receptet*@
+<script>
+        document.addEventListener('DOMContentLoaded', function () {
+        const ingredientSelector = document.getElementById('ingredientSelector');
+        const addIngredientButton = document.getElementById('addIngredientButton');
+        const selectedIngredientsList = document.getElementById('selectedIngredientsList');
+        const selectedIngredientsForSubmission = document.getElementById('selectedIngredientsForSubmission');
+
+        // Dessa används för att fylla i listan om du redigerar, men är tomma för ny skapelse
+        const allAvailableIngredientOptions = @Html.Raw(Json.Serialize(Model.AllAvailableIngredients.Select(i => new { i.Id, i.Name })));
+        const preSelectedIngredientIds = @Html.Raw(Json.Serialize(Model.SelectedIngredientIds));
+
+        function addIngredientToLists(ingredientId, ingredientName) {
+            // Kontrollera duplikat
+            if (selectedIngredientsList.querySelector(`[data-ingredient-id="${ingredientId}"]`)) {
+                alert(`${ingredientName} är redan tillagd!`);
+                return;
+            }
+
+            // Lägg till i den visuella listan
+            const listItem = document.createElement('li');
+            listItem.textContent = ingredientName;
+            listItem.setAttribute('data-ingredient-id', ingredientId);
+
+            // Lägg till en "Ta bort"-knapp
+            const removeButton = document.createElement('button');
+            removeButton.textContent = 'X';
+            removeButton.type = 'button'; // Viktigt: får inte skicka formuläret
+            removeButton.classList.add('btn', 'btn-sm', 'btn-outline-danger', 'ms-2');
+            removeButton.style.marginLeft = '10px';
+            removeButton.onclick = function () {
+                listItem.remove(); // Ta bort från visuell lista
+                // Ta bort motsvarande dolda input-fält
+                const hiddenInputToRemove = selectedIngredientsForSubmission.querySelector(`input[value="${ingredientId}"]`);
+                if (hiddenInputToRemove) {
+                    hiddenInputToRemove.remove();
+                }
+            };
+            listItem.appendChild(removeButton);
+            selectedIngredientsList.appendChild(listItem);
+
+            // Lägg till dolt input-fält för att skicka med formuläret
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'SelectedIngredientIds'; // VIKTIGT: Detta namn MÅSTE matcha din ViewModel-property
+            hiddenInput.value = ingredientId;
+            selectedIngredientsForSubmission.appendChild(hiddenInput);
+        }
+
+        // Fyll i befintliga ingredienser vid laddning (kommer vara tomma för nya recept)
+        preSelectedIngredientIds.forEach(id => {
+            const ingredient = allAvailableIngredientOptions.find(i => i.Id === id);
+            if (ingredient) {
+                addIngredientToLists(ingredient.Id, ingredient.Name);
+            }
+        });
+
+        // Eventlyssnare för "Lägg till ingrediens"-knappen
+        addIngredientButton.addEventListener('click', function () {
+            const selectedOption = ingredientSelector.options[ingredientSelector.selectedIndex];
+            const ingredientId = selectedOption.value;
+            const ingredientName = selectedOption.textContent;
+
+            addIngredientToLists(ingredientId, ingredientName);
+        });
+    });
+</script>

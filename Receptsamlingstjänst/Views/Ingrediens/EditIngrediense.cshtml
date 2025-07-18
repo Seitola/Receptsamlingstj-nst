@@ -1,0 +1,28 @@
+﻿@model Ingrediense
+
+@{
+}
+
+<div class="Food">
+    <h1 class="display-4">Redigera ingrediens</h1>
+    <p class="display-6">Ingrediensen som redigeras är @Model.Name med smaken @Model.Taste</p>
+</div>
+
+<div class="Food">
+    <h2 class="display-5">Ändra ingrediensen</h2>
+
+    <form action="/Ingrediens/EditIngrediense/@Model.Id" method="post">
+
+        <input type="text" name="Name" placeholder="Namn" />
+        <input type="text" name="Taste" placeholder="Smak" />
+
+        <button class="button button-style">Save</button>
+
+    </form>
+
+    <form action="/Ingrediens/ShowIngrediense/@Model.Id" method="post">
+
+        <button class="button button-back">Tillbaka</button>
+
+    </form>
+</div>

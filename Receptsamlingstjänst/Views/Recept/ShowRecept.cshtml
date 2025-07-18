@@ -1,0 +1,75 @@
+﻿@model Receptsamlingstjänst.Models.ReceptDisplayViewModel
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+<div class="Food">
+    <h1 class="display-4">Recept:</h1> 
+    <h2 class ="display-5">@Model.Title</h2>
+    
+    <p class="display-6">Här visas receptet och vilka ingredienser som finns med.
+        Det går även att redigera eller ta bort receptet genom att trycka på respektive knapp nedan.
+        "Tillbaka" - knappen tar dig tillbaka till listan med de sparade recepten.
+    </p>
+
+    <br />
+    <h2 class="display-5">Ingredienser:</h2>
+    @if (Model.Ingredients != null && Model.Ingredients.Any())
+    {
+        <ol>
+            @foreach (var ingrediense in Model.Ingredients)
+            {
+                <li>
+                    <strong>@ingrediense.Name</strong>
+                    @if (!string.IsNullOrEmpty(ingrediense.Taste))
+                    {
+                        <span> (Smak: @ingrediense.Taste)</span>
+                    }
+                </li>
+            }
+        </ol>
+    }
+    else
+    {
+        <p class="display-6">Inga ingredienser tillagda för detta recept än.</p>
+    }
+    <br />
+    
+    <div class="button-container">
+        <a href="/Recept/EditRecept/@Model.Id" class="button button-style">
+            Redigera recept
+        </a>
+
+        <!-- Delete Button Form -->
+        <form id="deleteForm" action="/Recept/DeleteRecept" method="post" class="inline-block">
+            <input type="hidden" name="Id" value="@Model.Id" />
+            <button type="button" id="deleteButton" class="button button-danger">
+                Ta bort recept
+            </button>
+        </form>
+    </div>
+
+    <!-- Bekräftelse modell för delete button -->
+    <div id="confirmationModal" class="modal hidden">
+        <div class="modal-content">
+            <h3 class="modal-title">Bekräfta borttagning</h3>
+            <p class="modal-message">Är du säker på att du vill ta bort receptet "@Model.Title"? Detta kan inte ångras.</p>
+            <div class="modal-actions">
+                <button type="button" id="cancelDelete" class="button button-secondary">Avbryt</button>
+                <button type="button" id="confirmDelete" class="button button-danger">Ta bort</button>
+            </div>
+        </div>
+    </div>
+
+    <form action="/Recept/Index" method="post">
+
+        <button class="button button-back">Tillbaka</button>
+
+    </form>
+
+</div>
+
+
+<script>
+    
+</script>

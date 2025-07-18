@@ -1,0 +1,35 @@
+﻿@model List<Ingrediense>
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+<div class="Food">
+    <h1 class="display-4">Ingredienser</h1>
+    <p class="display-6">
+        För att skapa en ingrediens trycker man på "Skapa ingrediens" - knappen. Efter man skapat en
+        ingrediens, går det att kolla på en ingrediens och dess smak genom att trycka på "Visa ingrediens"
+        - knappen.
+    </p>
+</div>
+
+<div class="Food">
+    <h2 class="display-5">Skapa ingredienser</h2>
+
+    <a href="/Ingrediens/Make" class="button-style">Skapa ingrediens</a>
+</div>
+
+<div class="Food">
+
+    <h2 class="display-5">Visa ingredienser</h2>
+
+    @foreach (Ingrediense ingrediense in Model)
+    {
+
+        <p class="display-6">
+            @ingrediense.Name <a href="/Ingrediens/ShowIngrediense/@ingrediense.Id">Visa ingrediens</a>
+        </p>
+
+    }
+</div>

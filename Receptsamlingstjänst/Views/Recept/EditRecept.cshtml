@@ -1,0 +1,134 @@
+﻿@model Receptsamlingstjänst.Models.ReceptEditViewModel
+
+@{
+    ViewData["Title"] = "Redigera Recept: " + Model.Title;
+}
+
+<div class="Food">
+    <h1 class="display-4">Du redigerar receptet: @Model.Title</h1>
+
+    <p class="display-6">
+        Här går det att redigera receptet @Model.Title. Titeln kan antingen behållas eller bytas ut, 
+        samt lägga till de ingredienser som ska vara med. För att lägga till en ingrediens så trycker man 
+        på rutan där det står en ingrediens, väljer ingrediensen som ska vara med och sedan trycker på 
+        "Lägg till ingrediens" - knappen. Råkar fel ingrediens bli tillagt, kan den tas bort genom 
+        att trycka på "X" - knappen efter ingrediensen.<br />
+        <br />När du har skrivit en titel och lagt till ingredienserna, trycker man på
+        "Spara ändringar" - knappen.
+    </p>
+
+</div>
+
+<div class="Food">
+    <h1 class="display-4">Börja redigera</h1>
+    <p class="display-6">Antingen behåller du titeln, eller så ändrar du den.</p>
+    <form action="/Recept/EditRecept" method="post">
+
+        <input type="hidden" name="Id" value="@Model.Id" />
+
+        <input type="text" name="Title" placeholder="Titel" value="@Model.Title" class="form-control mb-3" />
+
+        <div class="mb-3">
+            <label for="ingredientSelector" class="form-label">Lägg till ingredienser:</label>
+            <select id="ingredientSelector" class="form-select">
+                @foreach (var ingrediense in Model.AllAvailableIngredients)
+                {
+                    <option value="@ingrediense.Id">@ingrediense.Name</option>
+                }
+            </select>
+            <br />
+            <button type="button" id="addIngredientButton" class="button-back">Lägg till ingrediens</button>
+        </div>
+
+        <div id="selectedIngredientsForSubmission">
+        </div>
+
+        <h4 class="mt-4">Valda Ingredienser:</h4> 
+        <ul id="selectedIngredientsList" class="list-unstyled">
+        </ul>
+
+        <button type="submit" class="button button-primary">Spara ändringar</button>
+        
+    </form>
+    
+</div>
+
+<div class="Food">
+
+    <p class="display-6">Om du inte vill redigera, kan du trycka på "tillbaka"-knappen nedan:</p>
+
+    <a href="/Recept/ShowRecept/@Model.Id" class="button button-back">Tillbaka</a>
+
+</div>
+
+
+@*JavaScripten nedan används för ingredienserna ska läggas till och skickas med receptet*@
+<script>
+       document.addEventListener('DOMContentLoaded', function () {
+        const ingredientSelector = document.getElementById('ingredientSelector');
+        const addIngredientButton = document.getElementById('addIngredientButton');
+        const selectedIngredientsList = document.getElementById('selectedIngredientsList');
+        const selectedIngredientsForSubmission = document.getElementById('selectedIngredientsForSubmission');
+
+        // Hämta ALLA tillgängliga ingredienser och de REDAN valda ingredienserna från Model
+
+        const allAvailableIngredientOptions = @Html.Raw(Json.Serialize(Model.AllAvailableIngredients.Select(i => new { i.Id, i.Name })));
+        const preSelectedIngredientIds = @Html.Raw(Json.Serialize(Model.SelectedIngredientIds));
+
+        // Funktion för att lägga till en ingrediens i både den visuella listan och de dolda input-fälten
+        function addIngredientToLists(ingredientId, ingredientName, isPreselected = false) {
+            // Förhindra dubbletter i den visuella listan vid MANUELL tilläggning
+            if (!isPreselected && selectedIngredientsList.querySelector(`[data-ingredient-id="${ingredientId}"]`)) {
+                alert(`${ingredientName} är redan tillagd!`);
+                return;
+            }
+
+            // Lägg till i den visuella listan (<ul>)
+            const listItem = document.createElement('li');
+            listItem.textContent = ingredientName;
+            listItem.setAttribute('data-ingredient-id', ingredientId); // Data-attribut för att hålla koll på ID
+
+            // Lägg till en "Ta bort"-knapp
+            const removeButton = document.createElement('button');
+            removeButton.textContent = 'X';
+            removeButton.type = 'button'; // Viktigt: ska INTE skicka formuläret
+            removeButton.classList.add('btn', 'btn-sm', 'btn-outline-danger', 'ms-2'); // Exempelvis Bootstrap-klasser
+            removeButton.style.marginLeft = '10px';
+            removeButton.onclick = function () {
+                listItem.remove(); // Ta bort från visuell lista
+                // Ta bort motsvarande dolda input-fält för submission
+                const hiddenInputToRemove = selectedIngredientsForSubmission.querySelector(`input[value="${ingredientId}"]`);
+                if (hiddenInputToRemove) {
+                    hiddenInputToRemove.remove();
+                }
+            };
+            listItem.appendChild(removeButton);
+            selectedIngredientsList.appendChild(listItem);
+
+            // Lägg till ett dolt input-fält för formulärsubmission
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'SelectedIngredientIds'; // Detta namn MÅSTE matcha din ViewModel-property!
+            hiddenInput.value = ingredientId;
+            selectedIngredientsForSubmission.appendChild(hiddenInput);
+        }
+
+        // --- FÖRFYLL BEFINTLIGA INGREDIENSER NÄR SIDAN LADDAS ---
+        // Loopa igenom de ID:n som receptet redan har och lägg till dem i listorna
+        preSelectedIngredientIds.forEach(id => {
+            const ingredient = allAvailableIngredientOptions.find(i => i.Id === id);
+            if (ingredient) {
+                addIngredientToLists(ingredient.Id, ingredient.Name, true); // Markera som förvald
+            }
+        });
+
+        // --- Eventlyssnare för "Lägg till ingrediens"-knappen ---
+        addIngredientButton.addEventListener('click', function () {
+            const selectedOption = ingredientSelector.options[ingredientSelector.selectedIndex];
+            const ingredientId = selectedOption.value;
+            const ingredientName = selectedOption.textContent;
+
+            addIngredientToLists(ingredientId, ingredientName, false); // Inte förvald
+        });
+    });
+</script>

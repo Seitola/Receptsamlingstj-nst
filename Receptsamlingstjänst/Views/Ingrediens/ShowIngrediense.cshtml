@@ -1,0 +1,52 @@
+﻿@model Ingrediense
+
+@{
+    
+}
+<div class="Food">
+
+    <h1 class="display-4">Ingrediens</h1>
+    <p class="display-6">
+        Här kan du se en ingrediens och dess smak.
+        Det går även att redigera eller ta bort ingrediensen genom att trycka på respektive knapp nedan.
+        
+    </p>
+    <br />
+   
+    <p class="display-7"><strong>Ingrediens:</strong> @Model.Name</p>
+    <p class="display-7"><strong>Smak:</strong> @Model.Taste</p>
+    <br />
+    <div class="button-container">
+        <p>
+
+            <a href="/Ingrediens/EditIngrediense/@Model.Id" class="button button-style">Redigera Ingrediens</a>
+
+        </p>
+
+        <form id="deleteForm" action="/Ingrediens/DeleteIngrediense/@Model.Id" method="post">
+            <input type="hidden" name="Id" value="@Model.Id" />
+            <button type="button" id="deleteButton" class="button button-danger">
+                Ta bort ingrediens
+            </button>
+        </form>
+    </div>
+
+    <div id="confirmationModal" class="modal hidden">
+        <div class="modal-content">
+            <h3 class="modal-title">Bekräfta borttagning</h3>
+            <p class="modal-message">Är du säker på att du vill ta bort ingrediensen "@Model.Name"? Detta kan inte ångras.</p>
+            <div class="modal-actions">
+                <button type="button" id="cancelDelete" class="button button-secondary">Avbryt</button>
+                <button type="button" id="confirmDelete" class="button button-danger">Ta bort</button>
+            </div>
+        </div>
+    </div>
+
+    <form action="/Ingrediens/Index" method="post">
+
+        <button class="button-back">Tillbaka</button>
+
+    </form>
+
+</div>
+

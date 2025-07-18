@@ -1,0 +1,40 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+<div class="Food">
+    <h1 class="display-4">Ny ingrediens</h1>
+    <p class="display-6">
+        Här skapar man en ingrediens genom att skriva namnet på ingrediensen
+        och hur den smakar. Efter det är gjort trycker man på "Spara" -
+        knappen. Efter att du tryck på "Spara" - knappen, kommer man till
+        listan med alla ingredienser igen.
+    </p>
+
+</div>
+
+<div class="Food">
+    <h1 class="display-4">Börja skapa</h1>
+
+    <p class="display-6">
+        Skriv ingrediensens namn och smak i respektive ruta:
+    </p>
+
+    <form action="/Ingrediens/Make" method="post">
+
+        <input type="text" name="Name" placeholder="Namn" />
+        <input type="text" name="Taste" placeholder="Smak" />
+
+        <button class="button button-style"> Spara </button>
+    </form>
+
+    <form action="/Ingrediens/Index" method="post">
+
+        <button class="button button-back">Tillbaka</button>
+
+    </form>
+
+</div>
+
